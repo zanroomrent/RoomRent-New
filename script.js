@@ -4871,7 +4871,6 @@ bindAdminRoomEvents();
 /* =========================================================
    ADMIN ROOM MANAGEMENT - ROOMRENT
 ========================================================= */
-
 async function loadAdminRooms() {
     const panel = document.getElementById("adminRoomsPanel");
     const list = document.getElementById("adminRoomsList");
@@ -4894,69 +4893,126 @@ async function loadAdminRooms() {
     try {
         const snapshot = await db.collection("rooms").get();
 
+        // Taarifa za vyumba vilivyohifadhiwa Firestore
+        const firestoreRooms = new Map();
+
+        snapshot.forEach((doc) => {
+            const room = doc.data();
+
+            firestoreRooms.set(String(room.roomNumber || doc.id), {
+                ...room,
+                documentId: doc.id
+            });
+        });
+
+        // Unganisha vyumba vya ROOM_DATA na Firestore.
+        // Vyumba vilivyopo Firestore vitatumia taarifa zake zilizohifadhiwa.
+        const allRooms = ROOM_DATA.map((baseRoom) => {
+            const roomNumber = String(baseRoom.roomNumber);
+            const savedRoom = firestoreRooms.get(roomNumber);
+
+            return {
+                ...baseRoom,
+                ...(savedRoom || {}),
+                roomNumber,
+                documentId: savedRoom?.documentId || roomNumber,
+                isSaved: Boolean(savedRoom)
+            };
+        });
+
+        // Ongeza pia vyumba vya Firestore ambavyo havipo ROOM_DATA.
+        firestoreRooms.forEach((room, roomNumber) => {
+            const alreadyExists = allRooms.some(
+                (item) => item.roomNumber === roomNumber
+            );
+
+            if (!alreadyExists) {
+                allRooms.push({
+                    ...room,
+                    roomNumber,
+                    documentId: room.documentId,
+                    isSaved: true
+                });
+            }
+        });
+
+        allRooms.sort((a, b) =>
+            String(a.roomNumber).localeCompare(String(b.roomNumber))
+        );
+
         if (!list) return;
 
         list.replaceChildren();
 
-        if (snapshot.empty) {
-            list.textContent =
-                "Hakuna vyumba vilivyohifadhiwa kwenye Firestore bado.";
+        if (allRooms.length === 0) {
+            list.textContent = "Hakuna vyumba vilivyopatikana.";
             return;
         }
 
-        snapshot.forEach((doc) => {
-            const room = doc.data();
+        allRooms.forEach((room) => {
             const card = document.createElement("div");
-
             card.className = "info-card";
 
             const title = document.createElement("h3");
-            title.textContent = room.name || doc.id;
+            title.textContent = room.name || `Chumba ${room.roomNumber}`;
 
             const number = document.createElement("p");
-            number.textContent = `Namba: ${room.roomNumber || doc.id}`;
+            number.textContent = `Namba: ${room.roomNumber}`;
 
             const price = document.createElement("p");
             price.textContent =
                 `Bei: TSh ${Number(room.price || 0).toLocaleString("en-TZ")}`;
 
             const duration = document.createElement("p");
-            duration.textContent = `Muda: ${Number(room.days || 90)} siku`;
+            duration.textContent =
+                `Muda: ${Number(room.days || ROOM_DURATION_DAYS)} siku`;
 
-            card.append(title, number, price, duration);
+            const status = document.createElement("p");
+            status.textContent = room.isSaved
+                ? "Taarifa zimehifadhiwa Firestore"
+                : "Chumba cha ROOM_DATA — bado hakijahifadhiwa Firestore";
+
+            card.append(title, number, price, duration, status);
 
             const imageUrls = Array.isArray(room.imageUrls)
                 ? room.imageUrls
                 : [];
 
-            if (imageUrls.length) {
+            imageUrls.forEach((url) => {
                 const image = document.createElement("img");
-                image.src = imageUrls[0];
-                image.alt = room.name || doc.id;
+                image.src = url;
+                image.alt = room.name || `Chumba ${room.roomNumber}`;
                 image.loading = "lazy";
                 image.style.maxWidth = "100%";
                 image.style.height = "auto";
                 image.style.borderRadius = "8px";
+                image.style.marginBottom = "8px";
                 card.appendChild(image);
-            }
+            });
 
             const editButton = document.createElement("button");
             editButton.type = "button";
             editButton.className = "secondary-button";
-            editButton.textContent = "✏️ Hariri";
+            editButton.textContent = "✏️ Hariri / Ongeza picha";
 
             editButton.addEventListener("click", () => {
-                document.getElementById("adminRoomDocumentId").value = doc.id;
+                document.getElementById("adminRoomDocumentId").value =
+                    room.documentId;
+
                 document.getElementById("adminRoomNumber").value =
-                    room.roomNumber || doc.id;
+                    room.roomNumber;
+
                 document.getElementById("adminRoomName").value =
-                    room.name || "";
+                    room.name || `Chumba ${room.roomNumber}`;
+
                 document.getElementById("adminRoomPrice").value =
                     Number(room.price || 0);
-                document.getElementById("adminRoomDuration").value =
-                    Number(room.days || 90);
 
-                const preview = document.getElementById("adminRoomImagePreview");
+                document.getElementById("adminRoomDuration").value =
+                    Number(room.days || ROOM_DURATION_DAYS);
+
+                const preview =
+                    document.getElementById("adminRoomImagePreview");
 
                 if (preview) {
                     preview.replaceChildren();
@@ -4967,6 +5023,7 @@ async function loadAdminRooms() {
                         img.alt = "Picha ya chumba";
                         img.style.maxWidth = "100px";
                         img.style.margin = "5px";
+                        img.style.borderRadius = "6px";
                         preview.appendChild(img);
                     });
                 }
@@ -4980,7 +5037,8 @@ async function loadAdminRooms() {
         });
 
         if (message) {
-            message.textContent = `Vyumba vilivyopatikana: ${snapshot.size}`;
+            message.textContent =
+                `Jumla ya vyumba vilivyopatikana: ${allRooms.length}`;
         }
     } catch (error) {
         console.error("Load admin rooms error:", error);
@@ -4995,6 +5053,9 @@ async function loadAdminRooms() {
         }
     }
     }
+
+
+            
 
 
 /* =========================================================

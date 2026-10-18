@@ -5000,12 +5000,14 @@ async function loadAdminRooms() {
 /* =========================================================
    SAVE ROOM
 ========================================================= */
-
 async function saveAdminRoom(event) {
     event.preventDefault();
 
-    if (!currentUser || !currentUserData ||
-        currentUser.uid !== "1kj3K591EHhHAOiSoxIp1xGve2x1") {
+    if (
+        !currentUser ||
+        !currentUserData ||
+        currentUser.uid !== "1kj3K591EHhHAOiSoxIp1xGve2x1"
+    ) {
         alert("Huna ruhusa ya Admin.");
         return;
     }
@@ -5018,16 +5020,29 @@ async function saveAdminRoom(event) {
     const name = document.getElementById("adminRoomName").value.trim();
     const price = Number(document.getElementById("adminRoomPrice").value);
     const days = Number(document.getElementById("adminRoomDuration").value);
+
     const imageInput = document.getElementById("adminRoomImage");
     const file = imageInput?.files?.[0];
 
-    if (!roomNumber || !name || !Number.isSafeInteger(price) ||
-        price < 1 || !Number.isSafeInteger(days) || days < 1) {
+    const CLOUD_NAME = "vacfy4yh";
+    const UPLOAD_PRESET = "roomrent_rooms";
+
+    if (
+        !roomNumber ||
+        !name ||
+        !Number.isSafeInteger(price) ||
+        price < 1 ||
+        !Number.isSafeInteger(days) ||
+        days < 1
+    ) {
         alert("Tafadhali hakikisha taarifa zote zimejazwa kwa usahihi.");
         return;
     }
 
-    if (file && !["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    if (
+        file &&
+        !["image/jpeg", "image/png", "image/webp"].includes(file.type)
+    ) {
         alert("Chagua picha ya JPG, PNG au WebP.");
         return;
     }
@@ -5044,10 +5059,10 @@ async function saveAdminRoom(event) {
         const roomRef = db.collection("rooms").doc(documentId || roomNumber);
         const existing = await roomRef.get();
 
-        // Usibadilishe hati ya chumba kingine kwa bahati mbaya.
         if (documentId && documentId !== roomNumber) {
-            const numberRef = db.collection("rooms").doc(roomNumber);
-            const numberDoc = await numberRef.get();
+            const numberDoc = await db.collection("rooms")
+                .doc(roomNumber)
+                .get();
 
             if (numberDoc.exists) {
                 throw new Error(
@@ -5066,26 +5081,73 @@ async function saveAdminRoom(event) {
         }
 
         if (file) {
-            const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-            const storagePath =
-                `rooms/${roomNumber}/${Date.now()}_${safeName}`;
+            if (message) {
+                message.textContent = "Inapakia picha kwenda Cloudinary...";
+            }
 
-            const uploadRef = firebase.storage().ref().child(storagePath);
-            const uploadResult = await uploadRef.put(file);
-            const downloadUrl = await uploadResult.ref.getDownloadURL();
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", UPLOAD_PRESET);
+            formData.append("folder", "roomrent/rooms");
 
-            imageUrls = [...imageUrls, downloadUrl];
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 60000);
+
+            let response;
+
+            try {
+                response = await fetch(
+                    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+                    {
+                        method: "POST",
+                        body: formData,
+                        signal: controller.signal
+                    }
+                );
+            } catch (error) {
+                if (error.name === "AbortError") {
+                    throw new Error(
+                        "Upakiaji umechukua muda mrefu. Kagua intaneti na ujaribu tena."
+                    );
+                }
+
+                throw new Error(
+                    "Imeshindikana kuwasiliana na Cloudinary. Kagua intaneti."
+                );
+            } finally {
+                clearTimeout(timeout);
+            }
+
+            const uploadData = await response.json();
+
+            if (!response.ok || !uploadData.secure_url) {
+                console.error("Cloudinary upload error:", uploadData);
+
+                throw new Error(
+                    uploadData.error?.message ||
+                    "Cloudinary imeshindwa kupokea picha."
+                );
+            }
+
+            imageUrls = [...imageUrls, uploadData.secure_url];
         }
 
-        await roomRef.set({
-            roomNumber,
-            name,
-            price,
-            days,
-            imageUrls,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedBy: currentUser.uid
-        }, { merge: true });
+        if (message) {
+            message.textContent = "Inahifadhi taarifa za chumba...";
+        }
+
+        await roomRef.set(
+            {
+                roomNumber,
+                name,
+                price,
+                days,
+                imageUrls,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedBy: currentUser.uid
+            },
+            { merge: true }
+        );
 
         if (message) {
             message.textContent = "Chumba kimehifadhiwa kikamilifu.";
@@ -5103,12 +5165,13 @@ async function saveAdminRoom(event) {
         console.error("Save room error:", error);
 
         if (message) {
-            message.textContent = error.message || "Imeshindikana kuhifadhi chumba.";
+            message.textContent =
+                error.message || "Imeshindikana kuhifadhi chumba.";
         }
     } finally {
         if (saveButton) saveButton.disabled = false;
     }
-}
+        }
 
 
 /* =========================================================

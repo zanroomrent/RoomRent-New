@@ -582,17 +582,26 @@ message =
 }
 
 else if (
-    error &&
-    error.code === "auth/wrong-password"
+error &&
+error.code ===
+"auth/wrong-password"
 ) {
-    message = "Password si sahihi.";
+
+message =      
+    "Password si sahihi.";
+
 }
+
 else if (
-    error &&
-    error.code === "auth/invalid-email"
+error &&
+error.code ===
+"auth/invalid-email"
 ) {
-    message = "Email si sahihi.";
-    }
+
+message =      
+    "Email si sahihi.";
+
+}
 
 setMessage(
 
@@ -2134,26 +2143,20 @@ async function loadRooms() {
             "RoomRent: Vyumba " + ROOM_DATA.length +
             " vimeonyeshwa pamoja na picha za Firestore."
         );
-} catch (error) {
-    console.error("RoomRent loadRooms error:", error);
 
-    roomsList.replaceChildren();
+    } catch (error) {
+        console.error("RoomRent: Imeshindikana kupakia picha za vyumba.", error);
 
-    const errorMessage = document.createElement("p");
+        roomsList.replaceChildren();
 
-    if (error.code === "permission-denied") {
+        const errorMessage = document.createElement("p");
         errorMessage.textContent =
-            "Huna ruhusa ya kusoma taarifa za vyumba. Firestore Rules zinahitaji kurekebishwa.";
-    } else if (error.code === "unavailable") {
-        errorMessage.textContent =
-            "Huduma ya Firebase haipatikani kwa sasa. Kagua intaneti ujaribu tena.";
-    } else {
-        errorMessage.textContent =
-            "Hitilafu: " + (error.code || error.message || "Haijulikani");
+            "Imeshindikana kupakia vyumba. Tafadhali jaribu tena.";
+
+        roomsList.appendChild(errorMessage);
     }
+                                                    }
 
-    roomsList.appendChild(errorMessage);
-    }
 
 /* =========================================================
 24. OPEN ROOMS SECTION

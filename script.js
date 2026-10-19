@@ -2003,214 +2003,160 @@ else {
 /* =========================================================
 23. ROOMS DISPLAY
 ========================================================= */
+async function loadRooms() {
+    console.log("RoomRent: loadRooms inaanza...");
 
-function loadRooms() {
+    const roomsList = getElement("roomsList");
 
-console.log(
-"RoomRent: loadRooms inaanza..."
-);
+    if (!roomsList) {
+        console.error("RoomRent: roomsList HAIPO kwenye HTML.");
+        return;
+    }
 
-const roomsList =
-getElement(
-"roomsList"
-);
+    if (!Array.isArray(ROOM_DATA)) {
+        console.error("RoomRent: ROOM_DATA HAIPO.");
+        roomsList.textContent = "Vyumba havijapatikana.";
+        return;
+    }
 
-if (!roomsList) {
+    roomsList.textContent = "Inapakia vyumba...";
 
-console.error(
+    try {
+        // Soma picha na taarifa za vyumba kutoka Firestore
+        const snapshot = await db.collection("rooms").get();
 
-"RoomRent: roomsList HAIPO kwenye HTML."
+        const savedRooms = new Map();
 
-);
+        snapshot.forEach(function(doc) {
+            const data = doc.data();
+            const number = String(data.roomNumber || doc.id);
 
-return;
+            savedRooms.set(number, data);
+        });
 
-}
+        roomsList.replaceChildren();
 
-if (!Array.isArray(ROOM_DATA)) {
+        ROOM_DATA.forEach(function(room) {
+            const roomNumber = String(room.roomNumber);
+            const savedRoom = savedRooms.get(roomNumber) || {};
 
-console.error(
+            const price = Number(savedRoom.price ?? room.price);
+            const dailyProfit = price * ROOM_PROFIT_RATE_PER_DAY;
 
-"RoomRent: ROOM_DATA HAIPO."
+            const imageUrls = Array.isArray(savedRoom.imageUrls)
+                ? savedRoom.imageUrls.filter(
+                    url => typeof url === "string" && url.trim() !== ""
+                )
+                : [];
 
-);
+            const roomCard = document.createElement("div");
+            roomCard.className = "room-card";
 
-roomsList.innerHTML = `
+            // Picha ya chumba
+            if (imageUrls.length > 0) {
+                const imageContainer = document.createElement("div");
+                imageContainer.className = "room-images";
 
-<div class="empty-state">      
+                imageUrls.forEach(function(url) {
+                    const image = document.createElement("img");
 
-    <p>      
-        Vyumba havijapatikana.      
-    </p>      
+                    image.src = url;
+                    image.alt = "Picha ya chumba " + roomNumber;
+                    image.loading = "lazy";
+                    image.style.width = "100%";
+                    image.style.maxHeight = "240px";
+                    image.style.objectFit = "cover";
+                    image.style.borderRadius = "10px";
 
-</div>
+                    image.onerror = function() {
+                        image.alt = "Picha haikuweza kupakiwa";
+                        image.style.display = "none";
+                    };
 
-`;
+                    imageContainer.appendChild(image);
+                });
 
-return;
+                roomCard.appendChild(imageContainer);
+            }
 
-}
+            const content = document.createElement("div");
+            content.className = "room-card-content";
 
-roomsList.innerHTML =
-"";
+            const title = document.createElement("div");
+            title.className = "room-number";
+            title.textContent = "🏠 Chumba " + roomNumber;
 
-ROOM_DATA.forEach(
-function(room) {
+            const roomPrice = document.createElement("div");
+            roomPrice.className = "room-price";
+            roomPrice.textContent = formatMoney(price);
 
-const dailyProfit =
-room.price *
-ROOM_PROFIT_RATE_PER_DAY;
+            const info = document.createElement("div");
+            info.className = "room-info";
 
-const roomCard =      
-    document.createElement(      
-        "div"      
-    );      
+            const profitRow = document.createElement("div");
+            const profitLabel = document.createElement("span");
+            profitLabel.textContent = "Faida kwa siku";
 
+            const profitValue = document.createElement("strong");
+            profitValue.textContent = formatMoney(dailyProfit);
 
-roomCard.className =      
-    "room-card";      
+            profitRow.append(profitLabel, profitValue);
 
+            const durationRow = document.createElement("div");
+            const durationLabel = document.createElement("span");
+            durationLabel.textContent = "Muda wa uwekezaji";
 
-roomCard.innerHTML = `      
+            const durationValue = document.createElement("strong");
+            durationValue.textContent =
+                ROOM_DURATION_DAYS + " siku";
 
-    <div class="room-card-content">      
+            durationRow.append(durationLabel, durationValue);
 
-        <div class="room-number">      
+            const bookingRow = document.createElement("div");
+            const bookingLabel = document.createElement("span");
+            bookingLabel.textContent = "Booking zako";
 
-            🏠 Chumba      
-            ${room.roomNumber}      
+            const bookingValue = document.createElement("strong");
+            bookingValue.textContent =
+                "Hadi " + room.maxBookingsPerUser;
 
-        </div>      
+            bookingRow.append(bookingLabel, bookingValue);
 
+            info.append(profitRow, durationRow, bookingRow);
 
-        <div class="room-price">      
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "primary-button rent-room-button";
+            button.dataset.roomNumber = roomNumber;
+            button.textContent = "Kodisha Chumba";
 
-            ${formatMoney(      
-                room.price      
-            )}      
+            button.addEventListener("click", function() {
+                openBookingSection(roomNumber);
+            });
 
-        </div>      
+            content.append(title, roomPrice, info, button);
+            roomCard.appendChild(content);
+            roomsList.appendChild(roomCard);
+        });
 
+        console.log(
+            "RoomRent: Vyumba " + ROOM_DATA.length +
+            " vimeonyeshwa pamoja na picha za Firestore."
+        );
 
-        <div class="room-info">      
+    } catch (error) {
+        console.error("RoomRent: Imeshindikana kupakia picha za vyumba.", error);
 
-            <div>      
+        roomsList.replaceChildren();
 
-                <span>      
-                    Faida kwa siku      
-                </span>      
+        const errorMessage = document.createElement("p");
+        errorMessage.textContent =
+            "Imeshindikana kupakia vyumba. Tafadhali jaribu tena.";
 
-                <strong>      
+        roomsList.appendChild(errorMessage);
+    }
+                                                    }
 
-                    ${formatMoney(      
-                        dailyProfit      
-                    )}      
-
-                </strong>      
-
-            </div>      
-
-
-            <div>      
-
-                <span>      
-                    Muda wa uwekezaji      
-                </span>      
-
-                <strong>      
-
-                    ${ROOM_DURATION_DAYS}      
-                    siku      
-
-                </strong>      
-
-            </div>      
-
-
-            <div>      
-
-                <span>      
-                    Booking zako      
-                </span>      
-
-                <strong>      
-
-                    Hadi      
-                    ${room.maxBookingsPerUser}      
-
-                </strong>      
-
-            </div>      
-
-        </div>      
-
-
-        <button      
-
-            type="button"      
-
-            class="primary-button rent-room-button"      
-
-            data-room-number="${room.roomNumber}"      
-
-        >      
-
-            Kodisha Chumba      
-
-        </button>      
-
-    </div>      
-
-`;      
-
-
-roomsList.appendChild(      
-    roomCard      
-);
-
-}
-
-);
-
-const rentButtons =
-document.querySelectorAll(
-".rent-room-button"
-);
-
-rentButtons.forEach(
-function(button) {
-
-button.addEventListener(
-
-"click",      
-
-    function() {      
-
-        const roomNumber =      
-            button.dataset.roomNumber;      
-
-
-        openBookingSection(      
-            roomNumber      
-        );      
-
-    }      
-
-);
-
-}
-
-);
-
-console.log(
-
-"RoomRent: Vyumba " +
-ROOM_DATA.length +
-" vimeonyeshwa."
-
-);
-
-}
 
 /* =========================================================
 24. OPEN ROOMS SECTION

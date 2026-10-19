@@ -1273,3 +1273,275 @@ select:focus-visible {
     }
 
 }
+/* ==========================================
+   ROOMRENT - MODERN MORE PAGE
+========================================== */
+
+:root {
+    --rr-primary: #087f73;
+    --rr-primary-dark: #06665e;
+    --rr-background: #f3f7f8;
+    --rr-card: #ffffff;
+    --rr-text: #172033;
+    --rr-muted: #68758a;
+    --rr-border: #e5edf3;
+    --rr-shadow: 0 5px 18px rgba(20, 55, 75, 0.05);
+}
+
+/* More page container */
+#moreSection,
+.more-section {
+    background: var(--rr-background);
+    padding: 22px 16px 30px;
+    min-height: 70vh;
+    box-sizing: border-box;
+}
+
+/* Page title */
+#moreSection h1,
+.more-section h1 {
+    color: var(--rr-text);
+    font-size: 30px;
+    font-weight: 800;
+    margin: 10px 0 8px;
+}
+
+/* Subtitle */
+#moreSection .section-subtitle,
+.more-section .section-subtitle {
+    color: var(--rr-muted);
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+/* Menu list */
+.rr-more-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Individual menu card */
+.rr-more-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    min-height: 92px;
+    padding: 15px;
+    border: 1px solid var(--rr-border);
+    border-radius: 19px;
+    background: var(--rr-card);
+    box-shadow: var(--rr-shadow);
+    color: var(--rr-text);
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: transform 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+.rr-more-card:active {
+    transform: scale(0.985);
+}
+
+/* Icon box */
+.rr-more-icon {
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 17px;
+    font-size: 30px;
+    background: #e8f4ff;
+}
+
+/* Card text */
+.rr-more-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.rr-more-title {
+    display: block;
+    font-size: 18px;
+    line-height: 1.35;
+    font-weight: 750;
+    color: var(--rr-text);
+    margin-bottom: 5px;
+}
+
+.rr-more-description {
+    display: block;
+    color: var(--rr-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Arrow */
+.rr-more-arrow {
+    color: #8592a6;
+    font-size: 27px;
+    flex: 0 0 auto;
+}
+
+/* Different icon backgrounds */
+.rr-icon-history {
+    background: #e4f2ff;
+}
+
+.rr-icon-support {
+    background: #f0e5ff;
+}
+
+.rr-icon-download {
+    background: #dcf7eb;
+}
+
+.rr-icon-logout {
+    background: #fff0e5;
+}
+
+/* ==========================================
+   WHATSAPP GROUP CARD
+========================================== */
+
+.rr-whatsapp-card {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 17px;
+    border: 2px solid #27c98a;
+    border-radius: 20px;
+    background: linear-gradient(
+        135deg,
+        #f2fff8 0%,
+        #ffffff 100%
+    );
+    box-shadow: 0 6px 20px rgba(20, 170, 105, 0.07);
+    box-sizing: border-box;
+}
+
+.rr-whatsapp-icon {
+    width: 62px;
+    height: 62px;
+    flex: 0 0 62px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 17px;
+    background: #16b96e;
+    color: #ffffff;
+    font-size: 32px;
+}
+
+.rr-whatsapp-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.rr-whatsapp-title {
+    color: #104d3d;
+    font-size: 18px;
+    line-height: 1.35;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.rr-whatsapp-description {
+    color: var(--rr-muted);
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+/* Eligibility status */
+.rr-whatsapp-status {
+    display: inline-block;
+    color: #087e4d;
+    background: #dff8eb;
+    border-radius: 20px;
+    padding: 7px 10px;
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 650;
+}
+
+/* Join button */
+.rr-whatsapp-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background: #079b60;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 750;
+    border: none;
+    border-radius: 15px;
+    padding: 13px 15px;
+    min-height: 46px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.rr-whatsapp-button:hover {
+    background: #087e50;
+}
+
+.rr-whatsapp-button:focus-visible {
+    outline: 3px solid #a7efcb;
+    outline-offset: 3px;
+}
+
+/* Not eligible */
+.rr-whatsapp-locked {
+    background: #f1f4f6;
+    border-color: #dce4e8;
+}
+
+.rr-whatsapp-locked .rr-whatsapp-icon {
+    background: #dce5e8;
+}
+
+.rr-whatsapp-locked .rr-whatsapp-status {
+    color: #596778;
+    background: #e9eef1;
+}
+
+/* Small screens */
+@media (max-width: 380px) {
+    #moreSection,
+    .more-section {
+        padding: 18px 12px 24px;
+    }
+
+    .rr-more-card {
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .rr-more-icon {
+        width: 52px;
+        height: 52px;
+        flex-basis: 52px;
+        font-size: 25px;
+    }
+
+    .rr-more-title,
+    .rr-whatsapp-title {
+        font-size: 16px;
+    }
+
+    .rr-whatsapp-card {
+        flex-wrap: wrap;
+    }
+
+    .rr-whatsapp-button {
+        width: 100%;
+        box-sizing: border-box;
+    }
+   }

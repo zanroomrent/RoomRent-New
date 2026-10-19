@@ -2143,20 +2143,26 @@ async function loadRooms() {
             "RoomRent: Vyumba " + ROOM_DATA.length +
             " vimeonyeshwa pamoja na picha za Firestore."
         );
+} catch (error) {
+    console.error("RoomRent loadRooms error:", error);
 
-    } catch (error) {
-        console.error("RoomRent: Imeshindikana kupakia picha za vyumba.", error);
+    roomsList.replaceChildren();
 
-        roomsList.replaceChildren();
+    const errorMessage = document.createElement("p");
 
-        const errorMessage = document.createElement("p");
+    if (error.code === "permission-denied") {
         errorMessage.textContent =
-            "Imeshindikana kupakia vyumba. Tafadhali jaribu tena.";
-
-        roomsList.appendChild(errorMessage);
+            "Huna ruhusa ya kusoma taarifa za vyumba. Firestore Rules zinahitaji kurekebishwa.";
+    } else if (error.code === "unavailable") {
+        errorMessage.textContent =
+            "Huduma ya Firebase haipatikani kwa sasa. Kagua intaneti ujaribu tena.";
+    } else {
+        errorMessage.textContent =
+            "Hitilafu: " + (error.code || error.message || "Haijulikani");
     }
-                                                    }
 
+    roomsList.appendChild(errorMessage);
+    }
 
 /* =========================================================
 24. OPEN ROOMS SECTION

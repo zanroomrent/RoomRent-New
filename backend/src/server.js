@@ -21,6 +21,7 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
+const { runProfitProcessor } = require("./profitProcessor");
 // Verify Firebase Authentication tokens.
 async function authenticateUser(req, res, next) {
     try {
@@ -925,3 +926,45 @@ app.post(
     }
 );
 
+// =====================================================
+// ROOMRENT: SECURE PROFIT PROCESSOR ENDPOINT
+// =====================================================
+
+app.post("/internal/process-profits", async (req, res) => {
+    try {
+        const secret = process.env.PROFIT_CRON_SECRET;
+
+        if (!secret) {
+            console.error("PROFIT_CRON_SECRET is not configured.");
+
+            return res.status(503).json({
+                success: false,
+                message: "Profit processor haijasanidiwa."
+            });
+        }
+
+        const authorization = req.headers.authorization || "";
+
+        if (authorization !== `Bearer ${secret}`) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized"
+            });
+        }
+
+        const result = await runProfitProcessor();
+
+        return res.status(200).json({
+            success: true,
+            message: "Profit processor imekamilika.",
+            result
+        });
+    } catch (error) {
+        console.error("Profit processor error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Imeshindwa kuchakata faida."
+        });
+    }
+});

@@ -582,26 +582,17 @@ message =
 }
 
 else if (
-error &&
-error.code ===
-"auth/wrong-password"
+    error &&
+    error.code === "auth/wrong-password"
 ) {
-
-message =      
-    "Password si sahihi.";
-
+    message = "Password si sahihi.";
 }
-
 else if (
-error &&
-error.code ===
-"auth/invalid-email"
+    error &&
+    error.code === "auth/invalid-email"
 ) {
-
-message =      
-    "Email si sahihi.";
-
-}
+    message = "Email si sahihi.";
+    }
 
 setMessage(
 

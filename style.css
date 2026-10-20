@@ -1545,3 +1545,147 @@ select:focus-visible {
         box-sizing: border-box;
     }
    }
+
+/* =========================================
+   ROOMRENT - MODERN MORE MENU
+========================================= */
+
+.more-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.more-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 76px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #1f2937;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.more-menu-item:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
+}
+
+.more-menu-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 46px;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: #f1f5f9;
+  font-size: 23px;
+}
+
+.more-menu-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.more-menu-text strong {
+  color: #111827;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.more-menu-text small {
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.more-menu-arrow {
+  color: #9ca3af;
+  font-size: 26px;
+  font-weight: 400;
+}
+
+/* WhatsApp button */
+
+.whatsapp-menu-item {
+  border: 1px solid #bbf7d0;
+  background: linear-gradient(135deg, #f0fdf4, #ffffff);
+}
+
+.whatsapp-menu-item .more-menu-icon {
+  background: #dcfce7;
+}
+
+.whatsapp-menu-item .more-menu-text strong {
+  color: #166534;
+}
+
+.whatsapp-menu-item .more-menu-arrow {
+  color: #16a34a;
+}
+
+.whatsapp-menu-item:hover {
+  border-color: #22c55e;
+  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.14);
+}
+
+/* Logout button */
+
+.more-logout-item {
+  border-color: #fee2e2;
+  background: #fffafa;
+}
+
+.more-logout-item .more-menu-text strong {
+  color: #b91c1c;
+}
+
+.more-logout-item .more-menu-icon {
+  background: #fee2e2;
+}
+
+/* Mobile screens */
+
+@media (max-width: 480px) {
+  .more-menu-list {
+    gap: 11px;
+  }
+
+  .more-menu-item {
+    min-height: 70px;
+    padding: 13px;
+    gap: 12px;
+    border-radius: 15px;
+  }
+
+  .more-menu-icon {
+    flex-basis: 42px;
+    width: 42px;
+    height: 42px;
+    font-size: 21px;
+  }
+
+  .more-menu-text strong {
+    font-size: 14px;
+  }
+
+  .more-menu-text small {
+    font-size: 11px;
+  }
+}
